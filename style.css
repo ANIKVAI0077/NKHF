@@ -1,95 +1,215 @@
-:root{
-  --primary:#0b3b53;
-  --accent:#d99b2a;
-  --muted:#f8f6f2;
-  --card-bg:#ffffff;
+/* =========================
+   General Reset & Fonts
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Noto Sans Bengali', sans-serif;
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  font-family:'Noto Sans Bengali',system-ui,Arial,sans-serif;
-  margin:0;
-  background:var(--muted);
-  color:var(--primary);
+body {
+  background-color: #f4f6f8;
+  color: #333;
+  line-height: 1.5;
 }
 
-/* Topbar */
-.topbar{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:12px 16px;
-  background:var(--card-bg);
-  box-shadow:0 1px 6px rgba(0,0,0,.06);
-  position:sticky;
-  top:0;
-  z-index:20;
-}
-.topbar .logo{height:48px;border-radius:6px;object-fit:cover}
-.topbar h1{font-size:18px;margin:0;line-height:1.1}
-
-/* Container */
-.container{padding:16px;max-width:980px;margin:12px auto}
-
-/* Cards grid */
-.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.card{
-  background:var(--card-bg);
-  border-radius:10px;
-  padding:12px;
-  box-shadow:0 2px 6px rgba(11,59,83,0.05);
-  border:1px solid rgba(11,59,83,0.03);
-}
-.card.small{padding:8px}
-.card.form label{display:block;margin-bottom:10px;font-size:14px}
-.card.form input,.card.form select,.card.form textarea{
-  width:100%;
-  padding:8px;
-  border-radius:6px;
-  border:1px solid #ececec;
-  margin-top:6px;
-  font-size:14px;
+h1, h2, h3 {
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
-/* Buttons */
-.btn{
-  background:var(--primary);
-  color:#fff;
-  padding:10px 12px;
-  border-radius:8px;
-  border:0;
-  cursor:pointer;
-  font-size:14px;
+h1 { font-size: 1.8rem; }
+h2 { font-size: 1.4rem; }
+h3 { font-size: 1.2rem; }
+
+/* =========================
+   Topbar / Header
+========================= */
+.topbar {
+  display: flex;
+  align-items: center;
+  background-color: #005f73;
+  color: #fff;
+  padding: 12px 20px;
 }
-.btn.small{padding:7px 8px;font-size:13px}
-.btn.outline{background:transparent;color:var(--primary);border:1px solid var(--primary)}
 
-/* Utilities */
-.hidden{display:none}
-.card.tablewrap{overflow:auto}
-.table{width:100%;border-collapse:collapse}
-.table th,.table td{padding:8px;border-bottom:1px solid #f1f1f1;text-align:left}
-.row{display:flex;gap:8px;flex-wrap:wrap}
-.row.between{justify-content:space-between;align-items:center}
-.muted{color:#6b7280}
-.small{font-size:13px}
+.topbar .logo {
+  height: 40px;
+  width: 40px;
+  margin-right: 12px;
+}
 
-/* Receipt */
-.receipt{font-family:serif;padding:18px}
-.receipt .org{font-weight:700;font-size:18px;text-align:center}
-.receipt .title{font-size:16px;text-align:center;margin:6px 0}
-.receipt .rfield{margin:6px 0}
-.rfoot{margin-top:22px}
-.est{font-size:12px;margin-top:8px;text-align:right;color:#444}
+.topbar h1 {
+  font-size: 1.5rem;
+}
 
-/* Modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:40}
-.modalCard{background:#fff;padding:18px;border-radius:10px;min-width:260px;max-width:90%;box-shadow:0 6px 24px rgba(0,0,0,0.15)}
+/* =========================
+   Container
+========================= */
+.container {
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 0 15px;
+}
 
-/* Footer */
-.footer{text-align:center;padding:18px;color:#6b7280}
+/* =========================
+   Cards & Buttons
+========================= */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
 
-/* Responsive tweaks */
-@media (min-width:720px){.cards{grid-template-columns:repeat(4,1fr)}}
-@media (max-width:420px){.cards{grid-template-columns:repeat(1,1fr)}.topbar h1{font-size:16px}}
+.card {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card.small { padding: 10px; }
+.card.muted { color: #666; font-size: 0.9rem; }
+
+.btn {
+  background-color: #0a9396;
+  color: #fff;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: 0.2s;
+  margin-right: 6px;
+}
+
+.btn:hover { background-color: #007f80; }
+
+.btn.outline {
+  background-color: #fff;
+  color: #0a9396;
+  border: 1px solid #0a9396;
+}
+
+.btn.small { padding: 5px 10px; font-size: 0.85rem; }
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.row.between { justify-content: space-between; }
+
+/* =========================
+   Forms
+========================= */
+form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+form input, form select, form textarea {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 4px;
+  font-size: 0.95rem;
+}
+
+form textarea { resize: vertical; }
+
+/* =========================
+   Tables
+========================= */
+.tablewrap {
+  overflow-x: auto;
+  margin-top: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+table th, table td {
+  border: 1px solid #ddd;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+table th {
+  background-color: #0a9396;
+  color: #fff;
+}
+
+/* =========================
+   Receipt
+========================= */
+.receipt {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 15px;
+}
+
+.receipt .org {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.receipt .title {
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.receipt .rfield {
+  margin-bottom: 6px;
+}
+
+.receipt .rfoot {
+  margin-top: 15px;
+}
+
+.receipt .est {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* =========================
+   Hidden Screens
+========================= */
+.screen { display: block; }
+.hidden { display: none; }
+
+/* =========================
+   Footer
+========================= */
+.footer {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #555;
+  margin: 30px 0 10px 0;
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 768px) {
+  .cards { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  h1 { font-size: 1.3rem; }
+  h2 { font-size: 1.2rem; }
+}

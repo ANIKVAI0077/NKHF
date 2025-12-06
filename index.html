@@ -15,7 +15,6 @@
   <header class="topbar">
     <img src="logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
     <h1>নোয়াপাড়া–কড়রা মানবিক ফাউন্ডেশন</h1>
-    <button id="adminBtn" class="btn small">অ্যাডমিন</button>
   </header>
 
   <main class="container">
@@ -61,11 +60,13 @@
         <label>নোট/কারণ
           <input id="donationNote" type="text" placeholder="উদাহরণ: শীতবস্ত্র বিতরণ">
         </label>
+
         <div class="row">
           <button type="submit" class="btn">সেভ ও রিসিট দেখাও</button>
-          <button type="button" id="donationCancel" class="btn outline">বাতিল</button>
+          <button type="button" class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
         </div>
       </form>
+
       <div id="recentSaved" class="card small muted"></div>
     </section>
 
@@ -75,10 +76,8 @@
       <div class="filters card">
         <input id="filterName" placeholder="নাম দিয়ে ফিল্টার করুন">
         <input id="filterMonth" type="month">
-        <select id="filterEvent">
-          <option value="">সব ইভেন্ট</option>
-        </select>
         <button id="applyFilter" class="btn small">ফিল্টার</button>
+        <button class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
       </div>
       <div id="donationTable" class="card tablewrap"></div>
     </section>
@@ -99,6 +98,7 @@
       <div class="row">
         <button id="downloadPdf" class="btn">PDF ডাউনলোড</button>
         <button id="printReceipt" class="btn outline">প্রিন্ট</button>
+        <button class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
       </div>
     </section>
 
@@ -125,6 +125,7 @@
         </label>
         <div class="row">
           <button id="addExpense" class="btn">সংরক্ষণ</button>
+          <button class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
         </div>
       </div>
       <div id="accountsLog" class="card tablewrap"></div>
@@ -145,6 +146,7 @@
         </label>
         <div class="row">
           <button id="saveMember" class="btn">সেভ</button>
+          <button class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
         </div>
       </div>
       <div id="membersTable" class="card tablewrap"></div>
@@ -157,6 +159,9 @@
         <div>এই মাসে মোট অনুদান: <span id="reportThisMonth">0</span> টাকা</div>
         <div>মোট রিসিট তৈরিঃ <span id="reportReceipts">0</span></div>
         <div>মোট সদস্য: <span id="reportMembers">0</span></div>
+        <div class="row">
+          <button class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
+        </div>
       </div>
     </section>
 
@@ -168,6 +173,9 @@
         <input type="file" id="importFile" accept="application/json">
         <button id="importBackup" class="btn small">Import Backup</button>
         <div class="muted small">বিকল্প: Firebase ব্যাকআপ ব্যবহার করতে চাইলে app.js এ নির্দেশ অনুসরণ করুন।</div>
+        <div class="row">
+          <button class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
+        </div>
       </div>
     </section>
 
@@ -183,28 +191,11 @@
         </label>
         <div class="row">
           <button id="saveNotice" class="btn">পোস্ট</button>
+          <button class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
         </div>
       </div>
       <div id="notices" class="card tablewrap"></div>
     </section>
-
-    <!-- Admin Modal -->
-    <div id="adminModal" class="modal hidden">
-      <div class="modalCard">
-        <h3>অ্যাডমিন লগইন</h3>
-        <label>ইমেইল
-          <input id="adminEmail" type="email" value="admin@noaparafoundation.com">
-        </label>
-        <label>পাসওয়ার্ড
-          <input id="adminPassword" type="password">
-        </label>
-        <div class="row">
-          <button id="adminLoginBtn" class="btn">লগইন</button>
-          <button id="adminClose" class="btn outline">বাতিল</button>
-        </div>
-        <div class="muted small">ডিফল্ট ডেমো পাসওয়ার্ড: <strong>NKHF</strong></div>
-      </div>
-    </div>
 
   </main>
 
