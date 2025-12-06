@@ -1,48 +1,273 @@
-const DB_KEY='nkf_data_v2';
-let state={donations:[],members:[],notices:[]};
-const $=id=>document.getElementById(id);
-const nowYMD=()=>new Date().toISOString().slice(0,10);
+// =========================
+// Helper Functions
+// =========================
+const screens = document.querySelectorAll('.screen');
+function showScreen(id) {
+  screens.forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
 
-function loadState(){const raw=localStorage.getItem(DB_KEY);if(raw){try{state=JSON.parse(raw);}catch(e){state={donations:[],members:[],notices:[]};saveState();}}else saveState();}
-function saveState(){localStorage.setItem(DB_KEY,JSON.stringify(state));}
-
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.id===id?s.classList.remove('hidden'):s.classList.add('hidden'));window.scrollTo(0,0);refreshAll();}
-
-document.querySelectorAll('[data-target]').forEach(btn=>btn.addEventListener('click',()=>showScreen(btn.dataset.target)));
-
-// Donation Entry
-$('donationDate').value=nowYMD();
-$('donationForm').addEventListener('submit',e=>{
-  e.preventDefault();
-  const d={id:'d'+Date.now(),name:$('donorName').value.trim()||'অজানা',phone:$('donorPhone').value.trim(),amount:Number($('donationAmount').value)||0,date:$('donationDate').value||nowYMD(),method:$('paymentMethod').value,note:$('donationNote').value.trim()||'-'};
-  state.donations.push(d);saveState();
-  $('recentSaved').innerText=`সেভ হয়েছে: ${d.name} — ${d.amount} টাকা`;setReceipt(d);
-  $('donationForm').reset();$('donationDate').value=nowYMD();refreshAll();
+// =========================
+// Home Buttons Navigation
+// =========================
+document.querySelectorAll('.cards .card').forEach(btn => {
+  btn.addEventListener('click', () => showScreen(btn.dataset.target));
 });
 
+// =========================
+// Local Storage Keys
+// =========================
+const DONATIONS_KEY = "donations";
+const EXPENSES_KEY = "expenses";
+const MEMBERS_KEY = "members";
+const NOTICES_KEY = "notices";
+
+// =========================
+// Donations Form
+// =========================
+const donationForm = document.getElementById('donationForm');
+donationForm.addEventListener('submit', function(e){
+  e.preventDefault();
+  const donation = {
+    id: Date.now(),
+    name: document.getElementById('donorName').value,
+    phone: document.getElementById('donorPhone').value,
+    amount: parseFloat(document.getElementById('donationAmount').value),
+    date: document.getElementById('donationDate').value,
+    method: document.getElementById('paymentMethod').value,
+    note: document.getElementById('donationNote').value
+  };
+  const data = JSON.parse(localStorage.getItem(DONATIONS_KEY) || "[]");
+  data.push(donation);
+  localStorage.setItem(DONATIONS_KEY, JSON.stringify(data));
+
+  document.getElementById('recentSaved').textContent = `সেভ হয়েছে: ${donation.name} - ${donation.amount} টাকা`;
+  updateReceipt(donation);
+  donationForm.reset();
+  showScreen('receiptGenerator');
+  updateAccounts();
+  updateDonationTable();
+  updateReports();
+});
+
+// =========================
+// Update Receipt Preview
+// =========================
+function updateReceipt(donation){
+  document.getElementById('rName').textContent = donation.name;
+  document.getElementById('rAmount').textContent = donation.amount;
+  document.getElementById('rDate').textContent = donation.date;
+  document.getElementById('rNote').textContent = donation.note || "-";
+}
+
+// =========================
+// PDF Download
+// =========================
+document.getElementById('downloadPdf').addEventListener('click', () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const receipt = document.querySelector('.receipt');
+  doc.html(receipt, {
+    callback: function (doc) {
+      doc.save(`receipt_${Date.now()}.pdf`);
+    },
+    x: 10,
+    y: 10
+  });
+});
+
+document.getElementById('printReceipt').addEventListener('click', () => {
+  const w = window.open();
+  w.document.write(document.querySelector('.receipt').outerHTML);
+  w.print();
+  w.close();
+});
+
+// =========================
 // Donation Table
-function renderDonationTable(){const wrap=$('donationTable');if(state.donations.length===0){wrap.innerHTML='<div class="muted">কোনো অনুদান নেই</div>';return;}let html='<table class="table"><thead><tr><th>দাতার নাম</th><th>পরিমাণ</th><th>তারিখ</th><th>পেমেন্ট</th><th>রিসিট</th></tr></thead><tbody>';state.donations.slice().reverse().forEach(d=>{html+=`<tr><td>${d.name}${d.phone?'<div class="small muted">'+d.phone+'</div>':''}</td><td>${d.amount}</td><td>${d.date}</td><td>${d.method}</td><td><button class="btn small" onclick='viewReceipt("${d.id}")'>View Receipt</button></td></tr>`;});html+='</tbody></table>';wrap.innerHTML=html;}
-window.viewReceipt=id=>{const d=state.donations.find(x=>x.id===id);if(!d)return alert('ডেটা পাওয়া যায়নি।');setReceipt(d);showScreen('receiptGenerator');};
-function setReceipt(d){$('rName').innerText=d.name;$('rAmount').innerText=d.amount;$('rDate').innerText=d.date;$('rNote').innerText=d.note;}
-$('downloadPdf').addEventListener('click',()=>{try{const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'pt',format:'a4'});let y=60;doc.setFontSize(16);doc.text('নোয়াপাড়া–কড়রা মানবিক ফাউন্ডেশন',40,y);y+=30;doc.setFontSize(14);doc.text('অনুদান গ্রহণ রিসিট',40,y);y+=30;doc.setFontSize(12);doc.text(`দাতার নাম: ${$('rName').innerText}`,40,y);y+=20;doc.text(`অনুদানের পরিমাণ: ${$('rAmount').innerText} টাকা`,40,y);y+=20;doc.text(`তারিখ: ${$('rDate').innerText}`,40,y);y+=20;doc.text(`উদ্দেশ্য: ${$('rNote').innerText}`,40,y);y+=40;doc.text('গ্রহণকারীর স্বাক্ষর: ____________________',40,y);y+=30;doc.text('স্থাপিত: দুই হাজার পঁচিশ',40,y);doc.save(`receipt_${Date.now()}.pdf`);}catch(err){alert('PDF তৈরি করতে সমস্যা হয়েছে।');}});
-$('printReceipt').addEventListener('click',()=>window.print());
+// =========================
+function updateDonationTable(){
+  const data = JSON.parse(localStorage.getItem(DONATIONS_KEY) || "[]");
+  let html = `<table><tr><th>নাম</th><th>ফোন</th><th>পরিমাণ</th><th>তারিখ</th><th>পেমেন্ট</th><th>নোট</th></tr>`;
+  data.forEach(d => {
+    html += `<tr>
+      <td>${d.name}</td>
+      <td>${d.phone || "-"}</td>
+      <td>${d.amount}</td>
+      <td>${d.date}</td>
+      <td>${d.method}</td>
+      <td>${d.note || "-"}</td>
+    </tr>`;
+  });
+  html += "</table>";
+  document.getElementById('donationTable').innerHTML = html;
+}
+document.getElementById('applyFilter').addEventListener('click', ()=>{
+  const name = document.getElementById('filterName').value.toLowerCase();
+  const month = document.getElementById('filterMonth').value;
+  let data = JSON.parse(localStorage.getItem(DONATIONS_KEY) || "[]");
+  if(name) data = data.filter(d => d.name.toLowerCase().includes(name));
+  if(month) data = data.filter(d => d.date.startsWith(month));
+  let html = `<table><tr><th>নাম</th><th>ফোন</th><th>পরিমাণ</th><th>তারিখ</th><th>পেমেন্ট</th><th>নোট</th></tr>`;
+  data.forEach(d => {
+    html += `<tr>
+      <td>${d.name}</td>
+      <td>${d.phone || "-"}</td>
+      <td>${d.amount}</td>
+      <td>${d.date}</td>
+      <td>${d.method}</td>
+      <td>${d.note || "-"}</td>
+    </tr>`;
+  });
+  html += "</table>";
+  document.getElementById('donationTable').innerHTML = html;
+});
 
+// =========================
 // Members
-$('saveMember').addEventListener('click',()=>{const m={id:'m'+Date.now(),name:$('memberName').value.trim()||'-',role:$('memberRole').value.trim()||'-',phone:$('memberPhone').value.trim()};state.members.push(m);saveState();$('memberName').value='';$('memberRole').value='';$('memberPhone').value='';refreshAll();});
-function renderMembers(){const wrap=$('membersTable');if(state.members.length===0){wrap.innerHTML='<div class="muted">কোনও সদস্য নেই</div>';return;}let html='<table class="table"><thead><tr><th>নাম</th><th>পদবি</th><th>মোবাইল</th></tr></thead><tbody>';state.members.forEach(m=>html+=`<tr><td>${m.name}</td><td>${m.role}</td><td>${m.phone}</td></tr>`);html+='</tbody></table>';wrap.innerHTML=html;}
+// =========================
+function updateMembersTable(){
+  const data = JSON.parse(localStorage.getItem(MEMBERS_KEY) || "[]");
+  let html = `<table><tr><th>নাম</th><th>পদবি</th><th>মোবাইল</th></tr>`;
+  data.forEach(m => {
+    html += `<tr><td>${m.name}</td><td>${m.role}</td><td>${m.phone || "-"}</td></tr>`;
+  });
+  html += "</table>";
+  document.getElementById('membersTable').innerHTML = html;
+}
 
+document.getElementById('saveMember').addEventListener('click', ()=>{
+  const member = {
+    id: Date.now(),
+    name: document.getElementById('memberName').value,
+    role: document.getElementById('memberRole').value,
+    phone: document.getElementById('memberPhone').value
+  };
+  const data = JSON.parse(localStorage.getItem(MEMBERS_KEY) || "[]");
+  data.push(member);
+  localStorage.setItem(MEMBERS_KEY, JSON.stringify(data));
+  updateMembersTable();
+  document.getElementById('memberName').value="";
+  document.getElementById('memberRole').value="";
+  document.getElementById('memberPhone').value="";
+});
+
+// =========================
+// Accounts
+// =========================
+function updateAccounts(){
+  const donations = JSON.parse(localStorage.getItem(DONATIONS_KEY)||"[]");
+  const expenses = JSON.parse(localStorage.getItem(EXPENSES_KEY)||"[]");
+  const income = donations.reduce((sum,d)=>sum+d.amount,0);
+  const expenseSum = expenses.reduce((sum,e)=>sum+e.amount,0);
+  document.getElementById('totalIncome').textContent = income;
+  document.getElementById('totalExpense').textContent = expenseSum;
+  document.getElementById('balance').textContent = income - expenseSum;
+
+  let html=`<table><tr><th>বিবরণ</th><th>পরিমাণ</th><th>তারিখ</th></tr>`;
+  expenses.forEach(e=>{
+    html+=`<tr><td>${e.desc}</td><td>${e.amount}</td><td>${e.date}</td></tr>`;
+  });
+  html+="</table>";
+  document.getElementById('accountsLog').innerHTML = html;
+}
+
+document.getElementById('addExpense').addEventListener('click', ()=>{
+  const expense = {
+    id: Date.now(),
+    desc: document.getElementById('expenseDesc').value,
+    amount: parseFloat(document.getElementById('expenseAmount').value),
+    date: document.getElementById('expenseDate').value
+  };
+  const data = JSON.parse(localStorage.getItem(EXPENSES_KEY)||"[]");
+  data.push(expense);
+  localStorage.setItem(EXPENSES_KEY, JSON.stringify(data));
+  updateAccounts();
+});
+
+// =========================
 // Notices
-$('saveNotice').addEventListener('click',()=>{const n={id:'n'+Date.now(),title:$('noticeTitle').value.trim()||'বিজ্ঞপ্তি',body:$('noticeBody').value.trim()||'',date:nowYMD()};state.notices.push(n);saveState();$('noticeTitle').value='';$('noticeBody').value='';refreshAll();});
-function renderNotices(){const wrap=$('notices');if(state.notices.length===0){wrap.innerHTML='<div class="muted">কোনো নোটিস নেই</div>';return;}let html='';state.notices.slice().reverse().forEach(n=>{html+=`<div class="card"><strong>${n.title}</strong><div class="muted small">${n.date}</div><p>${n.body}</p></div>`});wrap.innerHTML=html;}
+// =========================
+function updateNotices(){
+  const data = JSON.parse(localStorage.getItem(NOTICES_KEY)||"[]");
+  let html="";
+  data.forEach(n=>{
+    html+=`<div class="card small"><strong>${n.title}</strong><p>${n.body}</p></div>`;
+  });
+  document.getElementById('notices').innerHTML = html;
+}
 
+document.getElementById('saveNotice').addEventListener('click', ()=>{
+  const notice = {
+    id: Date.now(),
+    title: document.getElementById('noticeTitle').value,
+    body: document.getElementById('noticeBody').value
+  };
+  const data = JSON.parse(localStorage.getItem(NOTICES_KEY)||"[]");
+  data.push(notice);
+  localStorage.setItem(NOTICES_KEY, JSON.stringify(data));
+  updateNotices();
+  document.getElementById('noticeTitle').value="";
+  document.getElementById('noticeBody').value="";
+});
+
+// =========================
+// Backup Export / Import
+// =========================
+document.getElementById('exportBackup').addEventListener('click', ()=>{
+  const backup = {
+    donations: JSON.parse(localStorage.getItem(DONATIONS_KEY)||"[]"),
+    expenses: JSON.parse(localStorage.getItem(EXPENSES_KEY)||"[]"),
+    members: JSON.parse(localStorage.getItem(MEMBERS_KEY)||"[]"),
+    notices: JSON.parse(localStorage.getItem(NOTICES_KEY)||"[]")
+  };
+  const blob = new Blob([JSON.stringify(backup,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download="backup.json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importBackup').addEventListener('click', ()=>{
+  const file = document.getElementById('importFile').files[0];
+  if(!file) return alert("ফাইল নির্বাচন করুন");
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const backup = JSON.parse(e.target.result);
+    localStorage.setItem(DONATIONS_KEY, JSON.stringify(backup.donations||[]));
+    localStorage.setItem(EXPENSES_KEY, JSON.stringify(backup.expenses||[]));
+    localStorage.setItem(MEMBERS_KEY, JSON.stringify(backup.members||[]));
+    localStorage.setItem(NOTICES_KEY, JSON.stringify(backup.notices||[]));
+    updateDonationTable();
+    updateAccounts();
+    updateMembersTable();
+    updateNotices();
+    alert("ব্যাকআপ ইমপোর্ট সম্পন্ন");
+  }
+  reader.readAsText(file);
+});
+
+// =========================
 // Reports
-function refreshAll(){loadState();renderDonationTable();renderMembers();renderNotices();renderReports();$('year').innerText=new Date().getFullYear();}
-function renderReports(){$('reportThisMonth').innerText=state.donations.filter(d=>d.date.startsWith(nowYMD().slice(0,7))).reduce((s,x)=>s+Number(x.amount),0);$('reportReceipts').innerText=state.donations.length;$('reportMembers').innerText=state.members.length;}
+// =========================
+function updateReports(){
+  const donations = JSON.parse(localStorage.getItem(DONATIONS_KEY)||"[]");
+  const members = JSON.parse(localStorage.getItem(MEMBERS_KEY)||"[]");
+  const thisMonth = new Date().toISOString().slice(0,7);
+  const monthTotal = donations.filter(d=>d.date.startsWith(thisMonth)).reduce((sum,d)=>sum+d.amount,0);
+  document.getElementById('reportThisMonth').textContent = monthTotal;
+  document.getElementById('reportReceipts').textContent = donations.length;
+  document.getElementById('reportMembers').textContent = members.length;
+}
 
-// Backup
-$('exportBackup').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='nkf_backup.json';a.click();URL.revokeObjectURL(url);});
-$('importBackup').addEventListener('click',()=>{const file=$('importFile').files[0];if(!file)return alert('ফাইল নির্বাচন করুন।');const reader=new FileReader();reader.onload=e=>{try{state=JSON.parse(e.target.result);saveState();refreshAll();alert('ইম্পোর্ট সফল হয়েছে।');}catch(err){alert('ফাইলটি সঠিক নয়।')}};reader.readAsText(file);});
-
-// Donation Cancel
-$('donationCancel').addEventListener('click',()=>{$('donationForm').reset();$('donationDate').value=nowYMD();});
-loadState();refreshAll();
+// =========================
+// Init
+// =========================
+document.getElementById('year').textContent = new Date().getFullYear();
+updateDonationTable();
+updateAccounts();
+updateMembersTable();
+updateNotices();
+updateReports();
