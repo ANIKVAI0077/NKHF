@@ -1,105 +1,150 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>নোয়াপাড়া–কড়রা মানবিক ফাউন্ডেশন</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>নোয়াপাড়া–কড়রা মানবিক ফাউন্ডেশন</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+<header class="topbar">
+  <img src="logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+  <h1>নোয়াপাড়া–কড়রা মানবিক ফাউন্ডেশন</h1>
+</header>
 
-  <!-- Header -->
-  <header class="topbar">
-    <img src="logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
-    <h1>নোয়াপাড়া–কড়রা মানবিক ফাউন্ডেশন</h1>
-  </header>
+<main class="container">
+  <!-- Home Screen -->
+  <section id="home" class="screen">
+    <div class="cards">
+      <button class="card" data-target="donationEntry">📥 অনুদান এন্ট্রি</button>
+      <button class="card" data-target="donationList">🧾 অনুদান তালিকা</button>
+      <button class="card" data-target="receiptGenerator">🖨 রিসিট তৈরি</button>
+      <button class="card" data-target="members">👥 মেম্বার লিস্ট</button>
+      <button class="card" data-target="reports">📈 রিপোর্ট</button>
+      <button class="card" data-target="backup">☁ ব্যাকআপ</button>
+      <button class="card" data-target="noticeboard">📌 নোটিস বোর্ড</button>
+    </div>
+  </section>
 
-  <!-- Main Container -->
-  <main class="container">
-
-    <!-- Home Screen -->
-    <section id="home" class="screen">
-      <div class="cards">
-        <button class="card" data-target="donationEntry">📥 অনুদান এন্ট্রি</button>
-        <button class="card" data-target="donationList">🧾 অনুদান তালিকা</button>
-        <button class="card" data-target="receiptGenerator">🖨 রিসিট তৈরি</button>
-        <button class="card" data-target="members">👥 মেম্বার লিস্ট</button>
-        <button class="card" data-target="reports">📈 রিপোর্ট</button>
-        <button class="card" data-target="backup">☁ ব্যাকআপ</button>
-        <button class="card" data-target="noticeboard">📌 নোটিস বোর্ড</button>
-      </div>
-    </section>
-
-    <!-- Donation Entry -->
-    <section id="donationEntry" class="screen hidden">
-      <button class="btn outline backBtn">🏠 হোমে ফিরে যান</button>
-      <h2>অনুদান এন্ট্রি ফরম</h2>
-      <form id="donationForm" class="card form">
-        <label>দাতার নাম <input id="donorName" type="text" placeholder="দাতার নাম লিখুন" required></label>
-        <label>মোবাইল নম্বর <input id="donorPhone" type="tel" placeholder="+8801xxxxxxxxx"></label>
-        <label>অনুদানের পরিমাণ (টাকা) <input id="donationAmount" type="number" min="1" required></label>
-        <label>তারিখ <input id="donationDate" type="date" required></label>
-        <label>পেমেন্ট মাধ্যম
-          <select id="paymentMethod">
-            <option value="Cash">Cash</option>
-            <option value="Bkash">Bkash</option>
-            <option value="Rocket">Rocket</option>
-            <option value="Nagad">Nagad</option>
-            <option value="Bank">Bank</option>
-          </select>
-        </label>
-        <label>নোট/কারণ <input id="donationNote" type="text" placeholder="উদাহরণ: শীতবস্ত্র বিতরণ"></label>
-        <div class="row">
-          <button type="submit" class="btn">সেভ ও রিসিট দেখাও</button>
-          <button type="button" id="donationCancel" class="btn outline">বাতিল</button>
-        </div>
-      </form>
-      <div id="recentSaved" class="card small muted"></div>
-    </section>
-
-    <!-- Donation List -->
-    <section id="donationList" class="screen hidden">
-      <button class="btn outline backBtn">🏠 হোমে ফিরে যান</button>
-      <h2>অনুদানের তালিকা</h2>
-      <div class="filters card">
-        <input id="filterName" placeholder="নাম দিয়ে ফিল্টার করুন">
-        <input id="filterMonth" type="month">
-        <button id="applyFilter" class="btn small">ফিল্টার</button>
-      </div>
-      <div id="donationTable" class="card tablewrap"></div>
-    </section>
-
-    <!-- Receipt Generator -->
-    <section id="receiptGenerator" class="screen hidden">
-      <button class="btn outline backBtn">🏠 হোমে ফিরে যান</button>
-      <h2>রিসিট / বিল তৈরি</h2>
-      <div id="receiptPreview" class="card receipt">
-        <div class="org">নোয়াপাড়া–কড়রা মানবিক ফাউন্ডেশন</div>
-        <div class="title">অনুদান গ্রহণ রিসিট</div>
-        <div class="rfield">দাতার নাম: <span id="rName">-</span></div>
-        <div class="rfield">অনুদানের পরিমাণ: <span id="rAmount">-</span> টাকা</div>
-        <div class="rfield">তারিখ: <span id="rDate">-</span></div>
-        <div class="rfield">উদ্দেশ্য: <span id="rNote">-</span></div>
-        <div class="rfoot">গ্রহণকারীর স্বাক্ষর: ____________________</div>
-        <div class="est">স্থাপিত: দুই হাজার পঁচিশ</div>
-      </div>
+  <!-- Donation Entry -->
+  <section id="donationEntry" class="screen hidden">
+    <h2>অনুদান এন্ট্রি ফরম</h2>
+    <form id="donationForm" class="card form">
+      <label>দাতার নাম
+        <input id="donorName" type="text" placeholder="দাতার নাম লিখুন" required>
+      </label>
+      <label>মোবাইল নম্বর
+        <input id="donorPhone" type="tel" placeholder="+8801xxxxxxxxx">
+      </label>
+      <label>অনুদানের পরিমাণ (টাকা)
+        <input id="donationAmount" type="number" min="1" required>
+      </label>
+      <label>তারিখ
+        <input id="donationDate" type="date" required>
+      </label>
+      <label>পেমেন্ট মাধ্যম
+        <select id="paymentMethod">
+          <option value="Cash">Cash</option>
+          <option value="Bkash">Bkash</option>
+          <option value="Rocket">Rocket</option>
+          <option value="Nagad">Nagad</option>
+          <option value="Bank">Bank</option>
+        </select>
+      </label>
+      <label>নোট/কারণ
+        <input id="donationNote" type="text" placeholder="উদাহরণ: শীতবস্ত্র বিতরণ">
+      </label>
       <div class="row">
-        <button id="downloadPdf" class="btn">PDF ডাউনলোড</button>
-        <button id="printReceipt" class="btn outline">প্রিন্ট</button>
+        <button type="submit" class="btn">সেভ ও রিসিট দেখাও</button>
+        <button type="button" id="donationCancel" class="btn outline">বাতিল</button>
+        <button type="button" class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
       </div>
-    </section>
+    </form>
+    <div id="recentSaved" class="card small muted"></div>
+  </section>
 
-    <!-- Placeholder Sections -->
-    <section id="members" class="screen hidden"><button class="btn outline backBtn">🏠 হোমে ফিরে যান</button><h2>মেম্বার লিস্ট</h2></section>
-    <section id="reports" class="screen hidden"><button class="btn outline backBtn">🏠 হোমে ফিরে যান</button><h2>রিপোর্টস</h2></section>
-    <section id="backup" class="screen hidden"><button class="btn outline backBtn">🏠 হোমে ফিরে যান</button><h2>ব্যাকআপ</h2></section>
-    <section id="noticeboard" class="screen hidden"><button class="btn outline backBtn">🏠 হোমে ফিরে যান</button><h2>নোটিস বোর্ড</h2></section>
+  <!-- Donation List -->
+  <section id="donationList" class="screen hidden">
+    <h2>অনুদানের তালিকা</h2>
+    <div id="donationTable" class="card tablewrap"></div>
+    <button class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
+  </section>
 
-  </main>
+  <!-- Receipt Generator -->
+  <section id="receiptGenerator" class="screen hidden">
+    <h2>রিসিট / বিল তৈরি</h2>
+    <div id="receiptPreview" class="card receipt">
+      <div class="org">নোয়াপাড়া–কড়রা মানবিক ফাউন্ডেশন</div>
+      <div class="title">অনুদান গ্রহণ রিসিট</div>
+      <div class="rfield">দাতার নাম: <span id="rName">-</span></div>
+      <div class="rfield">অনুদানের পরিমাণ: <span id="rAmount">-</span> টাকা</div>
+      <div class="rfield">তারিখ: <span id="rDate">-</span></div>
+      <div class="rfield">উদ্দেশ্য: <span id="rNote">-</span></div>
+      <div class="rfoot">গ্রহণকারীর স্বাক্ষর: ____________________</div>
+      <div class="est">স্থাপিত: দুই হাজার পঁচিশ</div>
+    </div>
+    <div class="row">
+      <button id="downloadPdf" class="btn">PDF ডাউনলোড</button>
+      <button id="printReceipt" class="btn outline">প্রিন্ট</button>
+      <button class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
+    </div>
+  </section>
 
-  <footer class="footer">© <span id="year"></span> নোয়াপাড়া–কড়রা মানবিক ফাউন্ডেশন</footer>
+  <!-- Members -->
+  <section id="members" class="screen hidden">
+    <h2>মেম্বার লিস্ট</h2>
+    <div class="card form small">
+      <label>নাম<input id="memberName" type="text"></label>
+      <label>পদবি<input id="memberRole" type="text"></label>
+      <label>মোবাইল<input id="memberPhone" type="tel"></label>
+      <div class="row">
+        <button id="saveMember" class="btn">সেভ</button>
+        <button class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
+      </div>
+    </div>
+    <div id="membersTable" class="card tablewrap"></div>
+  </section>
 
-  <script src="app.js"></script>
+  <!-- Reports -->
+  <section id="reports" class="screen hidden">
+    <h2>রিপোর্ট & সারাংশ</h2>
+    <div class="card">
+      <div>এই মাসে মোট অনুদান: <span id="reportThisMonth">0</span> টাকা</div>
+      <div>মোট রিসিট তৈরিঃ <span id="reportReceipts">0</span></div>
+      <div>মোট সদস্য: <span id="reportMembers">0</span></div>
+    </div>
+    <button class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
+  </section>
+
+  <!-- Backup -->
+  <section id="backup" class="screen hidden">
+    <h2>ডেটা ব্যাকআপ</h2>
+    <div class="card">
+      <button id="exportBackup" class="btn">Export Backup (JSON)</button>
+      <input type="file" id="importFile" accept="application/json">
+      <button id="importBackup" class="btn small">Import Backup</button>
+      <div class="muted small">ডেটা নিরাপদভাবে সেভ থাকবে।</div>
+      <button class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
+    </div>
+  </section>
+
+  <!-- Noticeboard -->
+  <section id="noticeboard" class="screen hidden">
+    <h2>নোটিস বোর্ড</h2>
+    <div class="card form">
+      <label>শিরোনাম<input id="noticeTitle" type="text"></label>
+      <label>বিবরণ<textarea id="noticeBody" rows="4"></textarea></label>
+      <div class="row">
+        <button id="saveNotice" class="btn">পোস্ট</button>
+        <button class="btn outline" onclick="showScreen('home')">হোমে ফিরে যান</button>
+      </div>
+    </div>
+    <div id="notices" class="card tablewrap"></div>
+  </section>
+</main>
+
+<footer class="footer">© <span id="year"></span> নোয়াপাড়া–কড়রা মানবিক ফাউন্ডেশন</footer>
+<script src="app.js"></script>
 </body>
 </html>
