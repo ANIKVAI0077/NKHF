@@ -8,12 +8,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+
+  <!-- Header -->
   <header class="topbar">
     <img src="logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
     <h1>নোয়াপাড়া–কড়রা মানবিক ফাউন্ডেশন</h1>
   </header>
 
+  <!-- Main Container -->
   <main class="container">
+
     <!-- Home Screen -->
     <section id="home" class="screen">
       <div class="cards">
@@ -33,7 +37,7 @@
       <h2>অনুদান এন্ট্রি ফরম</h2>
       <form id="donationForm" class="card form">
         <label>দাতার নাম <input id="donorName" type="text" placeholder="দাতার নাম লিখুন" required></label>
-        <label>মোবাইল নম্বর <input id="donorPhone" type="tel" inputmode="tel" pattern="[0-9+\- ]*" placeholder="+8801xxxxxxxxx"></label>
+        <label>মোবাইল নম্বর <input id="donorPhone" type="tel" placeholder="+8801xxxxxxxxx"></label>
         <label>অনুদানের পরিমাণ (টাকা) <input id="donationAmount" type="number" min="1" required></label>
         <label>তারিখ <input id="donationDate" type="date" required></label>
         <label>পেমেন্ট মাধ্যম
@@ -86,14 +90,16 @@
       </div>
     </section>
 
-    <!-- Members, Reports, Backup, Noticeboard -->
+    <!-- Placeholder Sections -->
     <section id="members" class="screen hidden"><button class="btn outline backBtn">🏠 হোমে ফিরে যান</button><h2>মেম্বার লিস্ট</h2></section>
     <section id="reports" class="screen hidden"><button class="btn outline backBtn">🏠 হোমে ফিরে যান</button><h2>রিপোর্টস</h2></section>
     <section id="backup" class="screen hidden"><button class="btn outline backBtn">🏠 হোমে ফিরে যান</button><h2>ব্যাকআপ</h2></section>
     <section id="noticeboard" class="screen hidden"><button class="btn outline backBtn">🏠 হোমে ফিরে যান</button><h2>নোটিস বোর্ড</h2></section>
+
   </main>
 
   <footer class="footer">© <span id="year"></span> নোয়াপাড়া–কড়রা মানবিক ফাউন্ডেশন</footer>
+
   <script src="app.js"></script>
 </body>
 </html>

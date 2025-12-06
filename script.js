@@ -1,8 +1,8 @@
-const DB_KEY = 'nkf_data_v2';
-let state = { donations: [], members: [], notices: [] };
+const DB_KEY = 'nkf_data_v3';
+let state = { donations: [] };
 const $ = id => document.getElementById(id);
-const nowYMD = () => new Date().toISOString().slice(0,10);
 
+/* Load and Save State */
 function loadState() {
   const raw = localStorage.getItem(DB_KEY);
   if(raw) state = JSON.parse(raw);
@@ -10,28 +10,31 @@ function loadState() {
 }
 function saveState() { localStorage.setItem(DB_KEY, JSON.stringify(state)); }
 
+/* Show Screen */
 function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s => s.id === id ? s.classList.remove('hidden') : s.classList.add('hidden'));
+  document.querySelectorAll('.screen').forEach(s => s.id===id ? s.classList.remove('hidden') : s.classList.add('hidden'));
   window.scrollTo(0,0);
-  refreshAll();
+  $('year').innerText = new Date().getFullYear();
+  renderDonationTable();
 }
 
-/* Home navigation */
+/* Navigation */
 document.querySelectorAll('[data-target]').forEach(btn => btn.addEventListener('click', ()=> showScreen(btn.dataset.target)));
 document.querySelectorAll('.backBtn').forEach(btn => btn.addEventListener('click', ()=> showScreen('home')));
 
-/* Donation Entry */
+/* Donation Form */
 const donationForm = $('donationForm');
-$('donationDate').value = nowYMD();
+$('donationDate').value = new Date().toISOString().slice(0,10);
+
 donationForm.addEventListener('submit', e => {
   e.preventDefault();
   const d = {
-    id: 'd' + Date.now(),
+    id: 'd'+Date.now(),
     name: $('donorName').value.trim() || 'অজানা',
     phone: $('donorPhone').value.trim(),
     amount: Number($('donationAmount').value) || 0,
-    date: $('donationDate').value || nowYMD(),
-    method: $('paymentMethod').value || 'Cash',
+    date: $('donationDate').value,
+    method: $('paymentMethod').value,
     note: $('donationNote').value.trim() || '-'
   };
   state.donations.push(d);
@@ -39,13 +42,14 @@ donationForm.addEventListener('submit', e => {
   $('recentSaved').innerText = `সেভ হয়েছে: ${d.name} — ${d.amount} টকা`;
   setReceipt(d);
   donationForm.reset();
-  $('donationDate').value = nowYMD();
-  renderDonationTable();
+  $('donationDate').value = new Date().toISOString().slice(0,10);
+  showScreen('receiptGenerator');
 });
 
-$('donationCancel').addEventListener('click', () => { donationForm.reset(); $('donationDate').value = nowYMD(); });
+/* Cancel Button */
+$('donationCancel').addEventListener('click', ()=> { donationForm.reset(); $('donationDate').value = new Date().toISOString().slice(0,10); });
 
-/* Receipt preview */
+/* Receipt Preview */
 function setReceipt(d){
   $('rName').innerText = d.name;
   $('rAmount').innerText = d.amount;
@@ -53,35 +57,49 @@ function setReceipt(d){
   $('rNote').innerText = d.note;
 }
 
-/* Donation Table */
-function renderDonationTable(filter={}) {
+/* Render Donation Table */
+function renderDonationTable(filter={}){
   const wrap = $('donationTable');
   let items = state.donations.slice().reverse();
   if(filter.name) items = items.filter(x => x.name.includes(filter.name));
   if(filter.month) items = items.filter(x => x.date.startsWith(filter.month));
   if(items.length===0){ wrap.innerHTML='<div class="muted">কোনো অনুদান নেই</div>'; return; }
+
   let html = '<table><thead><tr><th>দাতার নাম</th><th>পরিমাণ</th><th>তারিখ</th><th>পেমেন্ট</th><th>রিসিট</th></tr></thead><tbody>';
   items.forEach(it=>{
-    html+= `<tr>
-      <td>${it.name}${it.phone ? `<div class="small muted">${it.phone}</div>`: ''}</td>
-      <td>${it.amount}</td><td>${it.date}</td><td>${it.method}</td>
+    html += `<tr>
+      <td>${it.name}${it.phone?`<div class="small muted">${it.phone}</div>`:''}</td>
+      <td>${it.amount}</td>
+      <td>${it.date}</td>
+      <td>${it.method}</td>
       <td><button class="btn small" onclick='viewReceipt("${it.id}")'>View</button></td>
     </tr>`;
   });
-  html+='</tbody></table>'; wrap.innerHTML = html;
+  html+='</tbody></table>';
+  wrap.innerHTML = html;
 }
 
-window.viewReceipt = function(id){ const d = state.donations.find(x=>x.id===id); if(d){ setReceipt(d); showScreen('receiptGenerator'); } }
+/* View Receipt from Table */
+window.viewReceipt = function(id){
+  const d = state.donations.find(x=>x.id===id);
+  if(d){ setReceipt(d); showScreen('receiptGenerator'); }
+}
 
-/* Filter button */
-$('applyFilter').addEventListener('click', ()=> {
-  renderDonationTable({ name:$('filterName').value.trim(), month:$('filterMonth').value });
+/* Filter Donations */
+$('applyFilter').addEventListener('click', ()=>{
+  const filter = { name: $('filterName').value.trim(), month: $('filterMonth').value };
+  renderDonationTable(filter);
 });
 
-/* Init */
-function refreshAll(){
-  loadState();
-  renderDonationTable();
-  $('year').innerText = new Date().getFullYear();
-}
-loadState(); refreshAll(); showScreen('home');
+/* PDF and Print */
+$('downloadPdf').addEventListener('click', ()=>{
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.text($('receiptPreview').innerText, 10, 10);
+  doc.save('receipt.pdf');
+});
+$('printReceipt').addEventListener('click', ()=>{ window.print(); });
+
+/* Initialize */
+loadState();
+showScreen('home');
